@@ -1,6 +1,6 @@
 #$website_url = "https://webappqa.paypalcorp.com/GenesysAA/api/Installs"
 $version = $OctopusParameters["Octopus.Release.Number"]
-$description = $OctopusParameters["Version.Description"]
+$description = "TEST"
 $environment = $OctopusParameters["Octopus.Environment.Name"]
 $instance_name = $OctopusParameters["InstanceName"]
 $thumbprint = "937548C0C8E2A7D8485EF518FAC6B6179B4F12DF"
