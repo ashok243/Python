@@ -123,7 +123,7 @@ def request_with_retry(method=None, url=None, headers={}, data=None):
             if response.status_code >= 400: 
                 raise CRCreationError
             MAIL_ARGS['auth_tokens'] = 'SUCCESS'
-        except (CRCreationError, requests.exceptions.RequestException) as ex:
+        except (CRCreationError, Exception) as ex:
             if retry_count < 3:
                 print('Retrying API - %s operation for URL - %s' % (method, url))
                 time.sleep(5)
@@ -131,13 +131,11 @@ def request_with_retry(method=None, url=None, headers={}, data=None):
             else:
                 printwarning('Maximum retries exceeded, exiting..')
                 if response:
-                  MAIL_ARGS['other_errors'] = 'Status: {}, Headers: {}, Error Response: {}'.format(response.status_code, response.headers, response.content)
+                    MAIL_ARGS['other_errors'] = 'Status: {}, Headers: {}, Error Response: {}'.format(response.status_code, response.headers, response.content)
                 else:
-                  MAIL_ARGS['other_errors'] = 'Error Response: {}'.format(ex)
-        except Exception as ex:
-            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-            message = template.format(type(ex).__name__, ex.args)
-            MAIL_ARGS['other_errors'] = message
+                    template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+                    message = template.format(type(ex).__name__, ex.args)
+                    MAIL_ARGS['other_errors'] = message
         finally:
             if MAIL_ARGS['other_errors'] and MAIL_ARGS['other_errors'] != 'NA':
                 mailer()
