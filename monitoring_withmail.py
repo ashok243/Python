@@ -90,10 +90,11 @@ class ServiceNowApi:
         cr_response = None
         result = None
         cr_response = request_with_retry('GET', self.cr_get_url + "/" + data['cr_number'], headers=self.headers)
-        print(cr_response)
+        
         if cr_response and 'result' in cr_response:
             result = cr_response['result']
             MAIL_ARGS['fetch_cr'] = 'SUCCESS'
+            printhighlight('Received response for CR: %s' % data['cr_number'])
             
         print('END: Get change request')
         return result
@@ -122,14 +123,17 @@ def request_with_retry(method=None, url=None, headers={}, data=None):
             if response.status_code >= 400: 
                 raise CRCreationError
             MAIL_ARGS['auth_tokens'] = 'SUCCESS'
-        except (CRCreationError, requests.exceptions.RequestException):
+        except (CRCreationError, requests.exceptions.RequestException) as ex:
             if retry_count < 3:
                 print('Retrying API - %s operation for URL - %s' % (method, url))
                 time.sleep(5)
                 continue
             else:
                 printwarning('Maximum retries exceeded, exiting..')
-                MAIL_ARGS['other_errors'] = 'Status: {}, Headers: {}, Error Response: {}'.format(response.status_code, response.headers, response.content)
+                if response:
+                  MAIL_ARGS['other_errors'] = 'Status: {}, Headers: {}, Error Response: {}'.format(response.status_code, response.headers, response.content)
+                else:
+                  MAIL_ARGS['other_errors'] = 'Error Response: {}'.format(ex)
         except Exception as ex:
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
@@ -199,6 +203,7 @@ def mailer():
     print('BEGIN: Sending email')
     from_addr = get_octopusvariable('Mail.From')
     to_addr = get_octopusvariable('Mail.To')
+    octopus_server = get_octopusvariable('env:COMPUTERNAME')
 
     msg = MIMEMultipart()
     msg['From'] = from_addr
@@ -212,6 +217,10 @@ def mailer():
             <p>Octopus-ServiceNow monitoring update</p>
             <table border=2>
                 <tbody>
+                    <tr>
+                        <td>Octopus server</td>
+                        <td>{server}</td>
+                    </tr>
                     <tr>
                         <td>Connectivity from Octopus server -> ServiceNow</td>
                         <td>{connectivity}</td>
@@ -232,7 +241,8 @@ def mailer():
             </table>
         </body>
     </html>
-    """.format(connectivity=MAIL_ARGS['connectivity'], auth_tokens=MAIL_ARGS['auth_tokens'], fetch_cr=MAIL_ARGS['fetch_cr'], other_errors=MAIL_ARGS['other_errors'])
+    """.format(server=octopus_server, connectivity=MAIL_ARGS['connectivity'], auth_tokens=MAIL_ARGS['auth_tokens'], 
+               fetch_cr=MAIL_ARGS['fetch_cr'], other_errors=MAIL_ARGS['other_errors'])
 
     msg_body = MIMEText(html_body, 'html')
     msg.attach(msg_body)
@@ -251,8 +261,9 @@ def run():
     octopus_vars = read_octopus_vars()
     context = octopus_vars 
     api = ServiceNowApi(context)
-    cr_details = api.get_change_request(context)
-    print(cr_details)
+    cr_details = api.get_change_request(context)[0]
+    printhighlight('CR %s state: %s' % (cr_details['number'], cr_details['state']))
+    
     
 
 if __name__ == "<run_path>":
