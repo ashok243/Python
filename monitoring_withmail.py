@@ -164,8 +164,13 @@ def read_octopus_vars():
     def return_if_var_exists(var):
         try:
             return get_octopusvariable(var)
-        except Exception as e:
-            failstep('Required variable "%s" is not set: %s' % (var, e))
+        except Exception as ex:
+            message = 'Required variable "%s" is not set: %s' % (var, ex)
+            MAIL_ARGS['other_errors'] = message
+        finally:
+            if MAIL_ARGS['other_errors'] and MAIL_ARGS['other_errors'] != 'NA':
+                mailer()
+                failstep(MAIL_ARGS['other_errors'])
 
     octopus_vars = {to_snake_case(var): return_if_var_exists(var) for var in required_vars}
     print('END: Reading octopus variables')
@@ -226,7 +231,7 @@ def mailer():
                         <td>{fetch_cr}</td>
                     </tr>
                     <tr>
-                        <td>Other errors</td>
+                        <td>Error message</td>
                         <td>{other_errors}</td>
                     </tr>
                 </tbody>
@@ -250,7 +255,7 @@ def run():
     """Script entry point runner method
     """
     octopus_vars = read_octopus_vars()
-    context = octopus_vars
+    context = octopus_vars 
     api = ServiceNowApi(context)
     cr_details = api.get_change_request(context)
     print(cr_details)
