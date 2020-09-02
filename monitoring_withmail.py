@@ -4,17 +4,13 @@ import requests
 import json
 import time
 import smtplib
-import requests
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
-from inspect import cleandoc
 from functools import reduce
 
 
-"""ServiceNow CR creation module
+"""ServiceNow monitoring module
 """
 
 MAIL_ARGS = dict()
