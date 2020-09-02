@@ -201,7 +201,14 @@ def mailer():
     msg['Subject'] = "Octopus-ServiceNow connectivity monitoring"
     html_body = """
     <html>
-        <head></head>
+        <head>
+        <style>
+            table, th, td {
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+        </style>
+        </head>
         <body>
             <p>Monitoring update</p>
             <table>
