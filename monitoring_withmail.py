@@ -210,7 +210,7 @@ def mailer():
         </style>
         </head>
         <body>
-            <p>Monitoring update</p>
+            <p>Octopus-ServiceNow monitoring update</p>
             <table>
                 <tbody>
                     <tr>
