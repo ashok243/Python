@@ -207,16 +207,10 @@ def mailer():
     html_body = """
     <html>
         <head>
-        <style>
-            table, th, td {
-                border: 1px solid black;
-                border-collapse: collapse;
-            }
-        </style>
         </head>
         <body>
             <p>Octopus-ServiceNow monitoring update</p>
-            <table>
+            <table border=2>
                 <tbody>
                     <tr>
                         <td>Connectivity from Octopus server -> ServiceNow</td>
