@@ -1,0 +1,19 @@
+GET -
+/api/environments/all
+Get a list of EnvironmentResources
+
+GET
+/api/projects/{id}/metadata
+
+GET
+/api/runbookProcesses/{id}
+
+GET
+/api/runbooks/{id}
+
+GET
+/api/spaces
+Get a list of SpaceResources
+
+Sample Request: 
+curl -X POST -H "X-Octopus-ApiKey: API-TOKEN" "https://lvs1-vlrqa-103.paypalcorp.com/api/Spaces-1/runbooks/Runbooks-141/run" -H "accept: application/json" -d "{'Environment-Id': 'Environments-1'}"
